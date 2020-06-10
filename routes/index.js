@@ -82,34 +82,58 @@ class MovieDBWrapper{
     this.sessionID = null;
   }
 
-  initializeGuestSession(){
-    this.sessionID = axios.get(this.baseUrl + 'authentication/guest_session/new' + this.apiQuery + this.apiKey)
+  buildQueryString = (params) => {
+    let queryString = `?api_key=${this.apiKey}`;
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        queryString += `&${key}=${value}`;
+      }
+    }
+    return queryString
   }
+
+  initializeGuestSession(){
+    let apiQuery = this.buildQueryString({})
+    return axios.get(`${this.baseUrl }authentication/guest_session/new${apiQuery}`)
+    .then(resp => {
+      if(!resp.data){
+          throw ('error');
+      }
+      return this.sessionID = resp.data.guest_session_id;
+  }).catch(error=>{
+      console.log(error);
+      throw error
+  })
+
+};
 
   // creating the get url
   get(path, params){
     if(!this.sessionID){
       throw new Error('SessionID must be intialized')
     }
+    console.log(this.sessionID);
 
-    let apiQuery = '';
-		if(params){
-      const entries = Object.entries(params);
-      for(const [key, value] of entries){
-        if(key === 'api_key'){
-          apiQuery+=`?${key}=${value}`;
-        }
-        else{        
-          apiQuery+=`&${key}=${value}`;
-      }
-      }
-    }
+    let apiQuery = this.buildQueryString(params)
+		// if(params){
+    //   const entries = Object.entries(params);
+    //   for(const [key, value] of entries){
+    //     if(key === 'api_key'){
+    //       apiQuery+=`?${key}=${value}`;
+    //     }
+    //     else{        
+    //       apiQuery+=`&${key}=${value}`;
+    //   }
+    //   }
+    // }
+
+
     return axios.get(`${this.baseUrl}${path}${apiQuery}`)
       .then(resp => {
         console.log(resp.data)
         return resp.data
     })
-    .catch(err=>console.log(err));
+    .catch(err=>console.log(err.data));
   }
 
   // the post syntax is more specific than i would like
@@ -118,35 +142,38 @@ class MovieDBWrapper{
 		if(! this.sessionID){
       throw new Error('SessionID must be intialized')
     }
-    let apiQuery = ``;
+
+    let apiQuery = this.buildQueryString(params);
     let movie_id = ``;
-		if(params){
-      const entries = Object.entries(params)
-      for(const [key, value] of entries){
-        if(key === 'api_key'){
-          apiQuery+=`?${key}=${value}`;
-        }
-        else if(key === 'movie_id'){
-          movie_id+=`${value}`
-        }
-        else{        
-          apiQuery+=`&${key}=${value}`;
-      }
-      }
-    }
+
+		// if(params){
+    //   const entries = Object.entries(params)
+    //   for(const [key, value] of entries){
+    //     if(key === 'api_key'){
+    //       apiQuery+=`?${key}=${value}`;
+    //     }
+    //     else if(key === 'movie_id'){
+    //       movie_id+=`${value}`
+    //     }
+    //     else{        
+    //       apiQuery+=`&${key}=${value}`;
+    //   }
+    //   }
+    // }
     console.log(`${this.baseUrl}/movie${movie_id}${path}${apiQuery}`, payload);
 
     return axios.post(`${this.baseUrl}+${movie_id}${path}${apiQuery}`, payload)
   }
 
-  getNowPlaying(apiKey, language, page, region, api){
+  getNowPlaying(language, page, region){
     let path = 'movie/now_playing';
     let params = {
-      'api_key': apiKey,
+      'api_key': this.apiKey,
       'language': language,
       'page': page,
       'region': region,
     }
+    console.log(params);
 
     return this.get(path, params);
   }
@@ -175,7 +202,8 @@ class MovieDBWrapper{
 }
 const try1 = new MovieDBWrapper();
 try1.initializeGuestSession();
-// try1.getNowPlaying(try1.apiKey, 'en', 1, 'US');
+console.log(`try1 sessionID: ${try1.sessionID}`)
+// try1.getNowPlaying('en', 1, 'US');
 // try1.getPopularMovies(try1.apiKey, 'en', 1, 'US')
-try1.postMovieRating(try1.apiKey, try1.guest_session_id,501907, 4);
+// try1.postMovieRating(try1.apiKey, try1.guest_session_id,501907, 4);
 module.exports = router;
