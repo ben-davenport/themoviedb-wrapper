@@ -19,7 +19,7 @@ const rateMovies = async (movie_id, rating)=>{
     return axios.post(rateMovieURL, {"value": rating})
     .then(resp => {
         if(!resp.data){
-            thorw ('error');
+            throw ('error');
         }
         if(resp.data.status_message = 'Success.'){
             console.log(`Movie rating (${rating}) successfully posted`)

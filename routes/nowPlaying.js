@@ -1,7 +1,17 @@
 const util =  require('./utility');
 const axios= require('axios')
 
-const getNowPlaying = ()=>{
+async function createURL(language, page, region){
+    const key = process.env.API_KEY;
+    const baseURL=`http://api.themoviedb.org/3`;
+    const apiQuery= `?api_key=${key}`;
+    return `${baseURL}/movie/now_playing/${apiQuery}&language=${language}&page=${page}$region=${region}`
+}
+
+
+const getNowPlaying = async (language, page, region)=>{
+    const nowPlayingURL = await createURL(language, page,region);
+
     return axios.post(util.nowPlayingURL)
     .then(resp => {
         if(!resp.data){

@@ -1,11 +1,21 @@
 var axios = require('axios');
 var util = require('./utility');
 
-const getPopMovies = ()=>{
-    return axios.post(util.popularMovieURL)
+async function createURL(language, page, region){
+    const key = process.env.API_KEY;
+    const baseURL=`http://api.themoviedb.org/3`;
+    const apiQuery= `?api_key=${key}`;
+    return `${baseURL}/movie/popular/${apiQuery}&language=${language}&page=${page}$region=${region}`
+}
+
+
+const getPopMovies = async (language, page, region)=>{
+    const popularMovieURL = await createURL(language, page,region);
+
+    return axios.get(popularMovieURL)
     .then(resp => {
         if(!resp.data){
-            thorw ('error');
+            throw ('error');
         }
         console.log(resp.data)
         return resp.data

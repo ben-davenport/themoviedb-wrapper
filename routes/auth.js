@@ -8,9 +8,8 @@ const newGuestSession = ()=>{
     return axios.get(util.guestURL)
     .then(resp => {
         if(!resp.data){
-            thorw ('error');
+            throw ('error');
         }
-        console.log('new guest session running')
         return resp.data.guest_session_id;
     }).catch(error=>{
         console.log(error);
