@@ -12,7 +12,7 @@ async function createURL(language, page, region){
 const getNowPlaying = async (language, page, region)=>{
     const nowPlayingURL = await createURL(language, page,region);
 
-    return axios.post(util.nowPlayingURL)
+    return axios.get(nowPlayingURL)
     .then(resp => {
         if(!resp.data){
             thorw ('error');
