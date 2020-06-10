@@ -72,8 +72,8 @@ async initializeGuestSession() {
           queryString+=`&${key}=${value}`;
       };
     }
-
-    return axios.post(`${this.baseUrl}movie/${movie_id}${path}${queryString}`, {'value': payload})
+    console.log(`${this.baseUrl}movie/${path}${queryString}`)
+    return axios.post(`${this.baseUrl}movie/${path}${queryString}`, {'value': payload})
     .then(resp => {
       console.log(resp.data)
       return resp.data
@@ -109,7 +109,7 @@ async initializeGuestSession() {
 
   // post movies endpoint
   postMovieRating(guest_id, movie_id, rating){
-    let path = `/rating/${movie_id}`;
+    let path = `${movie_id}/rating`;
     let params = {
       'guest_session_id': guest_id,
     };
@@ -123,8 +123,7 @@ async initializeGuestSession() {
 async function genericFunctionName() {
 	const try1 = new MovieDBWrapper();
 	await try1.initializeGuestSession();
-  // console.log(`try1 sessionID: ${try1.sessionID}`);
-  try1.getNowPlaying('en', 1, 'US')
+  // try1.getNowPlaying('en', 1, 'US')
   try1.postMovieRating(try1.sessionID, 234324, 4)
 };
 genericFunctionName();
