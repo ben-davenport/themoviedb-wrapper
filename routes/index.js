@@ -86,6 +86,7 @@ class MovieDBWrapper{
     this.sessionID = axios.get(this.baseUrl + 'authentication/guest_session/new' + this.apiQuery + this.apiKey)
   }
 
+  // creating the get url
   get(path, params){
     if(!this.sessionID){
       throw new Error('SessionID must be intialized')
@@ -103,7 +104,6 @@ class MovieDBWrapper{
       }
       }
     }
-
     return axios.get(`${this.baseUrl}${path}${apiQuery}`)
       .then(resp => {
         console.log(resp.data)
@@ -112,19 +112,31 @@ class MovieDBWrapper{
     .catch(err=>console.log(err));
   }
 
+  // the post syntax is more specific than i would like
+  // the API does not have many post routes and they're all formatted differently
   post(path, params, payload){
 		if(! this.sessionID){
       throw new Error('SessionID must be intialized')
     }
-		let apiQuery = ``
+    let apiQuery = ``;
+    let movie_id = ``;
 		if(params){
       const entries = Object.entries(params)
       for(const [key, value] of entries){
-        apiQuery.concat(`&${key}=${value}`)
+        if(key === 'api_key'){
+          apiQuery+=`?${key}=${value}`;
+        }
+        else if(key === 'movie_id'){
+          movie_id+=`${value}`
+        }
+        else{        
+          apiQuery+=`&${key}=${value}`;
+      }
       }
     }
+    console.log(`${this.baseUrl}/movie${movie_id}${path}${apiQuery}`, payload);
 
-    return axios.post(this.baseUrl + path + payload.movieId + apiQuery)
+    return axios.post(`${this.baseUrl}+${movie_id}${path}${apiQuery}`, payload)
   }
 
   getNowPlaying(apiKey, language, page, region, api){
@@ -151,12 +163,19 @@ class MovieDBWrapper{
     return this.get(path, params);
   }
 
-  // postMovieRating(movie_id, rating){
-  //   let path = '/rating';
-  // }
+  postMovieRating(apiKey, guest_session_id, movie_id, rating){
+    let path = '/rating';
+    let params = {
+      'api_key': apiKey,
+      'guest_session_id': guest_session_id,
+    };
+    let payload = rating;
+    return this.post(path, params, payload)
+  }
 }
 const try1 = new MovieDBWrapper();
 try1.initializeGuestSession();
 // try1.getNowPlaying(try1.apiKey, 'en', 1, 'US');
-try1.getPopularMovies(try1.apiKey, 'en', 1, 'US')
+// try1.getPopularMovies(try1.apiKey, 'en', 1, 'US')
+try1.postMovieRating(try1.apiKey, try1.guest_session_id,501907, 4);
 module.exports = router;
