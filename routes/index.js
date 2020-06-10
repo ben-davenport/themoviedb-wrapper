@@ -1,10 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-const ISO6391 = require('iso-639-1');
-const countries = require("i18n-iso-countries");
 require('dotenv').config({path: __dirname + '/.env'});
-
 
 class MovieDBWrapper{
   constructor(){
@@ -22,20 +19,6 @@ class MovieDBWrapper{
     }
     return queryString
   };
-
-//   initializeGuestSession(){
-//     let apiQuery = this.buildQueryString({})
-//     axios.get(`${this.baseUrl }authentication/guest_session/new${apiQuery}`)
-//     .then(resp => {
-//       if(!resp.data){
-//           throw ('error');
-//       }
-//       console.log(this.sessionID = resp.data.guest_session_id)
-//       return this.sessionID = resp.data.guest_session_id;
-//   }).catch(error=>{
-//       throw error
-//   })
-// };
 
 async initializeGuestSession() {
   let apiQuery = this.buildQueryString({});
@@ -57,8 +40,6 @@ async initializeGuestSession() {
     if(!this.sessionID){
       throw new Error('SessionID must be intialized')
     }
-    console.log(this.sessionID);
-
     let apiQuery = this.buildQueryString(params)
 
     return axios.get(`${this.baseUrl}${path}${apiQuery}`)
@@ -122,7 +103,7 @@ async initializeGuestSession() {
     return this.get(path, params);
   }
 
-  //
+  
   postMovieRating(guest_id, movie_id, rating){
     let path = '/rating';
     let params = {
@@ -135,11 +116,13 @@ async initializeGuestSession() {
   
 };
 
+
 async function genericFunctionName() {
 	const try1 = new MovieDBWrapper();
-	const newID = await try1.initializeGuestSession();
-  console.log(`try1 sessionID: ${try1.sessionID}`);
-  await try1.postMovieRating(try1.sessionID, 234324, 4)
+	await try1.initializeGuestSession();
+  // console.log(`try1 sessionID: ${try1.sessionID}`);
+  try1.getNowPlaying('en', 1, 'US')
+  try1.postMovieRating(try1.sessionID, 234324, 4)
 };
 genericFunctionName();
 
