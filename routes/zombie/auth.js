@@ -1,6 +1,4 @@
 var axios = require('axios');
-// var express = require('express');
-// var router = express.Router();
 const util =  require('./utility');
 
 

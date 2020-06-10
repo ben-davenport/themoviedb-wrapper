@@ -10,6 +10,7 @@ class MovieDBWrapper{
     this.sessionID = null;
   }
 
+  // create query strings for endpoints
   buildQueryString = (params) => {
     let queryString = `?api_key=${this.apiKey}`;
     if (params) {
@@ -20,6 +21,7 @@ class MovieDBWrapper{
     return queryString
   };
 
+  //
 async initializeGuestSession() {
   let apiQuery = this.buildQueryString({});
   try {
@@ -127,12 +129,6 @@ async function genericFunctionName() {
 genericFunctionName();
 
 
-// router.get('/', async function(req,res,next){
-//   const try1 = new MovieDBWrapper();
-// 	await try1.initializeGuestSession();
-//   console.log(`try1 sessionID: ${try1.sessionID}`);
-//   try1.postMovieRating()
-// })
 
 
 module.exports = router;
