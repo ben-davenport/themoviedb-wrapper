@@ -21,23 +21,36 @@ class MovieDBWrapper{
       }
     }
     return queryString
+  };
+
+//   initializeGuestSession(){
+//     let apiQuery = this.buildQueryString({})
+//     axios.get(`${this.baseUrl }authentication/guest_session/new${apiQuery}`)
+//     .then(resp => {
+//       if(!resp.data){
+//           throw ('error');
+//       }
+//       console.log(this.sessionID = resp.data.guest_session_id)
+//       return this.sessionID = resp.data.guest_session_id;
+//   }).catch(error=>{
+//       throw error
+//   })
+// };
+
+async initializeGuestSession() {
+  let apiQuery = this.buildQueryString({});
+  try {
+    const sessionData = await axios.get(
+      `${this.baseUrl}authentication/guest_session/new${apiQuery}`,
+    );
+    if (!sessionData.data) throw 'error';
+    this.sessionID = sessionData.data.guest_session_id;
+    return this.sessionID;
+  } catch (err) {
+    console.error(err);
+    throw error;
   }
-
-  initializeGuestSession(){
-    let apiQuery = this.buildQueryString({})
-    return axios.get(`${this.baseUrl }authentication/guest_session/new${apiQuery}`)
-    .then(resp => {
-      if(!resp.data){
-          throw ('error');
-      }
-      console.log(this.sessionID = resp.data.guest_session_id)
-      return this.sessionID = resp.data.guest_session_id;
-  }).catch(error=>{
-      console.log(error);
-      throw error
-  })
-
-};
+}
 
   // creating the get url
   get(path, params){
@@ -54,7 +67,7 @@ class MovieDBWrapper{
         return resp.data
     })
     .catch(err=>console.log(err.data));
-  }
+};
 
   // the post syntax is more specific than i would like
   // the API does not have many post routes and they're all formatted differently
@@ -78,15 +91,17 @@ class MovieDBWrapper{
       };
     }
 
-    console.log(`${this.baseUrl}/movie${movie_id}${path}${queryString}`, payload);
-
-    return axios.post(`${this.baseUrl}/movies/${movie_id}${path}${queryString}`, payload)
-  }
+    return axios.post(`${this.baseUrl}movie/${movie_id}${path}${queryString}`, {'value': payload})
+    .then(resp => {
+      console.log(resp.data)
+      return resp.data
+  })
+  .catch(err=>console.log(err.data));
+};
 
   getNowPlaying(language, page, region){
     let path = 'movie/now_playing';
     let params = {
-      'api_key': this.apiKey,
       'language': language,
       'page': page,
       'region': region,
@@ -96,10 +111,9 @@ class MovieDBWrapper{
     return this.get(path, params);
   }
 
-    getPopularMovies(apiKey, language, page, region){
+    getPopularMovies(language, page, region){
       let path = 'movie/popular';
       let params = {
-        'api_key': apiKey,
         'language': language,
         'page': page,
         'region': region,
@@ -108,20 +122,34 @@ class MovieDBWrapper{
     return this.get(path, params);
   }
 
-  postMovieRating(apiKey, guest_session_id, movie_id, rating){
+  //
+  postMovieRating(guest_id, movie_id, rating){
     let path = '/rating';
     let params = {
-      'api_key': apiKey,
-      'guest_session_id': guest_session_id,
+      'guest_session_id': guest_id,
+      'movie_id': movie_id,
     };
     let payload = rating;
     return this.post(path, params, payload)
   }
-}
-const try1 = new MovieDBWrapper();
-try1.initializeGuestSession();
-console.log(`try1 sessionID: ${try1.sessionID}`)
-// try1.getNowPlaying('en', 1, 'US');
-// try1.getPopularMovies(try1.apiKey, 'en', 1, 'US')
-// try1.postMovieRating(try1.apiKey, try1.guest_session_id,501907, 4);
+  
+};
+
+async function genericFunctionName() {
+	const try1 = new MovieDBWrapper();
+	const newID = await try1.initializeGuestSession();
+  console.log(`try1 sessionID: ${try1.sessionID}`);
+  await try1.postMovieRating(try1.sessionID, 234324, 4)
+};
+genericFunctionName();
+
+
+// router.get('/', async function(req,res,next){
+//   const try1 = new MovieDBWrapper();
+// 	await try1.initializeGuestSession();
+//   console.log(`try1 sessionID: ${try1.sessionID}`);
+//   try1.postMovieRating()
+// })
+
+
 module.exports = router;
