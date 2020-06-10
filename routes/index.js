@@ -65,17 +65,11 @@ async initializeGuestSession() {
     }
 
     let queryString = `?api_key=${this.apiKey}`;
-    let movie_id = ``;
 
 		if(params){
       const entries = Object.entries(params)
       for(const [key, value] of entries){
-        if(key === 'movie_id'){
-          movie_id+=`${value}`
-        }
-        else{        
           queryString+=`&${key}=${value}`;
-      }
       };
     }
 
@@ -115,10 +109,9 @@ async initializeGuestSession() {
 
   // post movies endpoint
   postMovieRating(guest_id, movie_id, rating){
-    let path = '/rating';
+    let path = `/rating/${movie_id}`;
     let params = {
       'guest_session_id': guest_id,
-      'movie_id': movie_id,
     };
     let payload = rating;
     return this.post(path, params, payload)
