@@ -21,7 +21,11 @@ class MovieDBWrapper{
     return queryString
   };
 
-  //
+  // get guest session id - necessary for post later
+  // must be asynchronous or the promise doesn't resolve
+  // i have the feeling there is a redundant promise between
+  // this and when it's called asnychronously,
+  // but none of my efforts at simplification have worked
 async initializeGuestSession() {
   let apiQuery = this.buildQueryString({});
   try {
@@ -31,7 +35,8 @@ async initializeGuestSession() {
     if (!sessionData.data) throw 'error';
     this.sessionID = sessionData.data.guest_session_id;
     return this.sessionID;
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err);
     throw error;
   }
@@ -82,6 +87,7 @@ async initializeGuestSession() {
   .catch(err=>console.log(err.data));
 };
 
+  // get movie now playing endpoint
   getNowPlaying(language, page, region){
     let path = 'movie/now_playing';
     let params = {
@@ -94,6 +100,8 @@ async initializeGuestSession() {
     return this.get(path, params);
   }
 
+
+  // get movies endpoint
     getPopularMovies(language, page, region){
       let path = 'movie/popular';
       let params = {
@@ -105,7 +113,7 @@ async initializeGuestSession() {
     return this.get(path, params);
   }
 
-  
+  // post movies endpoint
   postMovieRating(guest_id, movie_id, rating){
     let path = '/rating';
     let params = {
