@@ -5,75 +5,6 @@ const ISO6391 = require('iso-639-1');
 const countries = require("i18n-iso-countries");
 require('dotenv').config({path: __dirname + '/.env'});
 
-const auth = require('./auth');
-const popular = require('./popularMovie');
-const nowPlaying = require('./nowPlaying');
-const rateMovie = require('./rateMovie');
-
-// // const sessionAuth = auth.newGuestSession();
-// // const nowPlayingMovies = nowPlaying.getNowPlaying();
-// // const movieRating = rateMovie.postRating()
-
-// // const getSessionAuthId = auth.newGuestSession();
-
-// async function postMovieRating(movie_id=501907, rating=5){
-
-//   if(typeof(movie_id) !== 'number'){
-//     throw new Error('movie id must be a number')
-//   };
-//   if(rating < 0.5 || rating > 10 || typeof(rating) !== 'number'){
-//     throw new Error('rating must be a number between 0.5 and 10')
-//   };
-
-//   const movieRating = await rateMovie.postRating(movie_id, rating);
-//   console.log(movieRating)
-//   return movieRating
-// };
-// // postMovieRating(501908, 3);
-
-
-// async function getPopularMovies(language='en', page=1, region='US'){
-//   const pageNumber = Math.round(page)
-
-//   // check the params; 
-//   if(!ISO6391.validate(language)){
-//     throw new Error('language must be in a valid number ISO 639-1 format')
-//   }
-//   if(!countries.isValid(region)){
-//     throw new Error('region codes must use the ISO 3166-1 code ')
-//   }
-//   if(typeof(page) !== 'number'){
-//     throw new Error('page must be of type number')
-//   }
-//   if(pageNumber< 1 || pageNumber > 1000){
-//     throw new Error('page number must be between 1 and 1000')
-//   }
-//   const popularMovies = await popular.getPopMovies(language, page, region);
-
-// };
-// // getPopularMovies('en', 1, 'US');
-
-
-// async function getNowPlayingMovies(language='en', page=1, region='US'){
-//   const pageNumber = Math.round(page)
-
-//   if(!ISO6391.validate(language)){
-//     throw new Error('language must be in a valid number ISO 639-1 format')
-//   }
-//   if(!countries.isValid(region)){
-//     throw new Error('region codes must use the ISO 3166-1 code ')
-//   }
-//   if(typeof(page) !== 'number'){
-//     throw new Error('page must be of type number')
-//   }
-//   if(pageNumber< 1 || pageNumber > 1000){
-//     throw new Error('page number must be between 1 and 1000')
-//   }
-
-//   const nowPlayingMovies = await nowPlaying.getNowPlaying(language, page, region);
-// }
-// getNowPlayingMovies('en', 3, 'US');
-
 
 class MovieDBWrapper{
   constructor(){
@@ -99,6 +30,7 @@ class MovieDBWrapper{
       if(!resp.data){
           throw ('error');
       }
+      console.log(this.sessionID = resp.data.guest_session_id)
       return this.sessionID = resp.data.guest_session_id;
   }).catch(error=>{
       console.log(error);
@@ -115,18 +47,6 @@ class MovieDBWrapper{
     console.log(this.sessionID);
 
     let apiQuery = this.buildQueryString(params)
-		// if(params){
-    //   const entries = Object.entries(params);
-    //   for(const [key, value] of entries){
-    //     if(key === 'api_key'){
-    //       apiQuery+=`?${key}=${value}`;
-    //     }
-    //     else{        
-    //       apiQuery+=`&${key}=${value}`;
-    //   }
-    //   }
-    // }
-
 
     return axios.get(`${this.baseUrl}${path}${apiQuery}`)
       .then(resp => {
@@ -143,26 +63,24 @@ class MovieDBWrapper{
       throw new Error('SessionID must be intialized')
     }
 
-    let apiQuery = this.buildQueryString(params);
+    let queryString = `?api_key=${this.apiKey}`;
     let movie_id = ``;
 
-		// if(params){
-    //   const entries = Object.entries(params)
-    //   for(const [key, value] of entries){
-    //     if(key === 'api_key'){
-    //       apiQuery+=`?${key}=${value}`;
-    //     }
-    //     else if(key === 'movie_id'){
-    //       movie_id+=`${value}`
-    //     }
-    //     else{        
-    //       apiQuery+=`&${key}=${value}`;
-    //   }
-    //   }
-    // }
-    console.log(`${this.baseUrl}/movie${movie_id}${path}${apiQuery}`, payload);
+		if(params){
+      const entries = Object.entries(params)
+      for(const [key, value] of entries){
+        if(key === 'movie_id'){
+          movie_id+=`${value}`
+        }
+        else{        
+          queryString+=`&${key}=${value}`;
+      }
+      };
+    }
 
-    return axios.post(`${this.baseUrl}+${movie_id}${path}${apiQuery}`, payload)
+    console.log(`${this.baseUrl}/movie${movie_id}${path}${queryString}`, payload);
+
+    return axios.post(`${this.baseUrl}/movies/${movie_id}${path}${queryString}`, payload)
   }
 
   getNowPlaying(language, page, region){
